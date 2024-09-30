@@ -12,3 +12,25 @@ These scripts will do the following:
 
 Scripts will be generated with [GitHub Actions](https://docs.github.com/en/actions/about-github-actions/understanding-github-actions) and stored in the `dist` directory or maybe in root directory. I will see later.
 I think I will use Bun for generating scripts.
+
+## Usage
+
+You can grab the scripts from the root directory of the repository.
+Currently only BASH `gip.sh` and Python `gip.py` scripts are available.
+
+You can pass `--ensure N` argument to specify the number of the same responses (default is 3).
+Keep in mind that currently there is 28 services, so do not pass the number greater than 28.
+
+### BASH
+
+```bash
+./gip.sh
+./gip.sh --ensure 10
+```
+
+### Python
+
+```bash
+python gip.py
+python gip.py --ensure 10
+```
