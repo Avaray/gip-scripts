@@ -1,6 +1,6 @@
-## The idea
+# 🐷 GIP Scripts
 
-Some time ago, I created [NPM](https://docs.npmjs.com/about-npm) package named [GIP](https://www.npmjs.com/package/gip), which is a simple [JavaScript](https://simple.wikipedia.org/wiki/JavaScript) [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and [CLI](https://en.wikipedia.org/wiki/Command-line_interface) that checks external [IPv4](https://en.wikipedia.org/wiki/IPv4) address of the machine it runs on. Now I want to create a few scripts in different programming languages that will do the same thing. I will create a [BASH](https://www.gnu.org/software/bash/) and [Python](https://www.python.org/) scripts for sure. Later I will see which other languages I will choose. 
+Some time ago, I created [NPM](https://docs.npmjs.com/about-npm) package named [GIP](https://www.npmjs.com/package/gip), which is a simple [JavaScript](https://simple.wikipedia.org/wiki/JavaScript) [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and [CLI](https://en.wikipedia.org/wiki/Command-line_interface) tool that checks external [IPv4](https://en.wikipedia.org/wiki/IPv4) address of the machine it runs on. Now I want to create a few scripts in different programming languages that will do the same thing. I will create a BASH and Python scripts for sure. Probably C# will be the next one. Later I will see which other languages I will choose.
 
 These scripts will do the following:
 
