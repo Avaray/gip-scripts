@@ -1,0 +1,118 @@
+#!/bin/bash
+
+# Default consensus threshold
+consensus_threshold=3
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --ensure)
+            if [[ -n $2 && $2 =~ ^[0-9]+$ ]]; then
+                consensus_threshold=$2
+                shift 2
+            else
+                echo "Error: --ensure requires a numeric argument" >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Error: Invalid argument $1" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# List of URLs to check
+urls=(
+  "http://eth0.me"
+  "http://ipv4.whatismyip.akamai.com"
+  "https://api-ipv4.ip.sb/ip"
+  "https://api.ipify.org"
+  "https://api.myip.la"
+  "https://checkip.amazonaws.com"
+  "https://icanhazip.com"
+  "https://ifconfig.co"
+  "https://ifconfig.io"
+  "https://ifconfig.me/ip"
+  "https://ip.gs"
+  "https://ip.sb"
+  "https://ip.tyk.nu"
+  "https://ip.xdty.org"
+  "https://ipapi.co/ip"
+  "https://ipconfig.io"
+  "https://ipecho.net/plain"
+  "https://ipinfo.io/ip"
+  "https://ipv4.appspot.com"
+  "https://ipv4.icanhazip.com"
+  "https://ipv4.wtfismyip.com/text"
+  "https://l2.io/ip"
+  "https://myexternalip.com/raw"
+  "https://myip.dnsomatic.com"
+  "https://myip.ustclug.org"
+  "https://v4.ident.me"
+  "https://wgetip.com"
+  "https://www.uc.cn/ip"
+)
+
+# Function to validate IP address format
+validate_ip() {
+    if [[ $1 =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to check IP from a single URL
+check_ip() {
+    local url=$1
+    local ip
+    if command -v curl &> /dev/null; then
+        ip=$(curl -s4 --max-time 5 "$url" | tr -d '[:space:]')
+    elif command -v wget &> /dev/null; then
+        ip=$(wget -qO- --timeout=5 "$url" | tr -d '[:space:]')
+    else
+        echo "Error: Neither curl nor wget is available" >&2
+        exit 1
+    fi
+    if validate_ip "$ip"; then
+        echo "$ip"
+    fi
+}
+
+# Array to store results
+declare -A results
+
+# Create a named pipe for inter-process communication
+pipe=$(mktemp -u)
+mkfifo "$pipe"
+
+# Function to check for consensus
+check_consensus() {
+    while read -r ip; do
+        ((results[$ip]++))
+        if [ "${results[$ip]}" -ge "$consensus_threshold" ]; then
+            echo "$ip"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Trap to ensure cleanup on exit
+trap 'rm -f "$pipe"; kill $(jobs -p) 2>/dev/null' EXIT
+
+# Start the requests in the background
+for url in "${urls[@]}"; do
+    check_ip "$url" > "$pipe" &
+done
+
+# Check for consensus
+if ip=$(check_consensus < "$pipe"); then
+    echo "$ip"
+    exit 0
+fi
+
+# If we get here, no consensus was reached
+echo "Could not determine external IPv4 address" >&2
+exit 1
