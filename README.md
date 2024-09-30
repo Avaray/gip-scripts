@@ -18,7 +18,7 @@ I think I will use Bun for generating scripts.
 You can grab the scripts from the root directory of the repository.
 Currently only BASH `gip.sh` and Python `gip.py` scripts are available.
 
-You can pass `--ensure N` argument to specify the number of the same responses (default is 3).
+You can pass `--ensure N` argument to specify the number of the same responses (default is 3).  
 Keep in mind that currently there is 28 services, so do not pass the number greater than 28.
 
 ### BASH
