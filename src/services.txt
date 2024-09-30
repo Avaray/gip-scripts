@@ -14,13 +14,11 @@ https://ip.tyk.nu
 https://ip.xdty.org
 https://ipapi.co/ip
 https://ipconfig.io
-https://ipconfig.io
 https://ipecho.net/plain
 https://ipinfo.io/ip
 https://ipv4.appspot.com
 https://ipv4.icanhazip.com
 https://ipv4.wtfismyip.com/text
-https://l2.io/ip
 https://l2.io/ip
 https://myexternalip.com/raw
 https://myip.dnsomatic.com
