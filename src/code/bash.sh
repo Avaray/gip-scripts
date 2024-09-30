@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# Default consensus threshold
+consensus_threshold=3
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --ensure)
+            if [[ -n $2 && $2 =~ ^[0-9]+$ ]]; then
+                consensus_threshold=$2
+                shift 2
+            else
+                echo "Error: --ensure requires a numeric argument" >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "Error: Invalid argument $1" >&2
+            exit 1
+            ;;
+    esac
+done
+
 # List of URLs to check
 urls=()
 
@@ -21,7 +43,7 @@ check_ip() {
     elif command -v wget &> /dev/null; then
         ip=$(wget -qO- --timeout=5 "$url" | tr -d '[:space:]')
     else
-        echo "Error: Neither curl nor wget is available." >&2
+        echo "Error: Neither curl nor wget is available" >&2
         exit 1
     fi
     if validate_ip "$ip"; then
@@ -40,7 +62,7 @@ mkfifo "$pipe"
 check_consensus() {
     while read -r ip; do
         ((results[$ip]++))
-        if [ "${results[$ip]}" -ge 3 ]; then
+        if [ "${results[$ip]}" -ge "$consensus_threshold" ]; then
             echo "$ip"
             return 0
         fi
