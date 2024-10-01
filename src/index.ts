@@ -66,3 +66,13 @@ await generateScript(
   '"',
   true,
 );
+
+// Generate Java script
+await generateScript(
+  './code/java.java',
+  'gip.java',
+  /private static final String\[\] urls = \{\};/,
+  (urls) => `private static final String[] urls = {\n${urls}\n};`,
+  '"',
+  true,
+);

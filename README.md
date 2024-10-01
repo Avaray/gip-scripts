@@ -49,3 +49,10 @@ deno --allow-net gip.ts --ensure 7
 go run gip.go
 go run gip.go --ensure 7
 ```
+
+### [Java](https://www.java.com/en/)
+
+```bash
+java gip.java
+java gip.java --ensure 7
+```
