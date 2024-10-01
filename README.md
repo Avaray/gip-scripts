@@ -19,26 +19,33 @@ Also, keep in mind that some services may be down or not available in your regio
 
 ```bash
 ./gip.sh
-./gip.sh --ensure 10
+./gip.sh --ensure 7
 ```
 
 ### [Python](https://www.python.org/)
 
 ```bash
 python gip.py
-python gip.py --ensure 10
+python gip.py --ensure 7
 ```
 
 ### [Bun](https://bun.sh/)
   
 ```bash
 bun gip.ts
-bun gip.ts --ensure 10
+bun gip.ts --ensure 7
 ```
 
 ### [Deno](https://deno.com/)
 
 ```bash
 deno --allow-net gip.ts
-deno --allow-net gip.ts --ensure 10
+deno --allow-net gip.ts --ensure 7
+```
+
+### [Go](https://go.dev/)
+
+```bash
+go run gip.go
+go run gip.go --ensure 7
 ```
