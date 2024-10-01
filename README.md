@@ -9,10 +9,11 @@ These scripts will do the following:
 
 ## Usage
 
-You can grab the scripts from the root directory of the repository.
+You can grab the scripts from the [dist](https://github.com/Avaray/gip-scripts/tree/main/dist) directory.
 
-You can pass `--ensure N` argument to specify the number of the same responses (default is 3).  
+You can pass `--ensure N` argument to specify the number of the same responses (default is 3) that you want to wait for. In this way, you will have verification that the IP address is real.
 Keep in mind that currently there is 28 services, so do not pass the number greater than 28.
+Also, keep in mind that some services may be down or not available in your region. Try to stick with low numbers.
 
 ### [BASH](https://www.gnu.org/software/bash/)
 
