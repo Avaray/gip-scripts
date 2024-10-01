@@ -5,7 +5,7 @@ Some time ago, I created [NPM](https://docs.npmjs.com/about-npm) package named [
 These scripts will do the following:
 
 - Do a parallel HTTP request to the multiple services that return the IP address.
-- Ensure that the IP address is real by waiting for at least three the same responses.
+- Ensure that the IP address is real by waiting for specific number of the same responses.
 
 ## Usage
 
