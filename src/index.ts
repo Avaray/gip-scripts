@@ -59,7 +59,7 @@ await generateScript(
 
 // Generate Golang script
 await generateScript(
-  './code/golang.go',
+  './code/go.go',
   'gip.go',
   /var urls = \[\]string{}/,
   (urls) => `var urls = []string{\n${urls}\n}`,
