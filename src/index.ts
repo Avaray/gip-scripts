@@ -35,7 +35,8 @@ async function generateScript(config: ScriptConfig): Promise<void> {
     const formattedUrls = formatUrls(config.quote, config.comma);
     const newContent = content.replace(config.placeholder, config.replacement(formattedUrls));
 
-    await Bun.write(`../dist/${config.outputPath}`, newContent);
+    const outputPath = `${import.meta.dir}/../dist/${config.outputPath}`;
+    await Bun.write(outputPath, newContent);
     console.log(`Generated: ${config.outputPath}`);
   } catch (error) {
     console.error(`Failed to generate ${config.name} script:`, error);
@@ -45,7 +46,7 @@ async function generateScript(config: ScriptConfig): Promise<void> {
 const configs: ScriptConfig[] = [
   {
     name: 'Bash',
-    templatePath: './code/bash.sh',
+    templatePath: `${import.meta.dir}/code/bash.sh`,
     outputPath: 'gip.sh',
     placeholder: /urls=\(\)/,
     replacement: (urls) => `urls=(\n${urls}\n)`,
@@ -54,7 +55,7 @@ const configs: ScriptConfig[] = [
   },
   {
     name: 'Python',
-    templatePath: './code/python.py',
+    templatePath: `${import.meta.dir}/code/python.py`,
     outputPath: 'gip.py',
     placeholder: /urls = \[\]/,
     replacement: (urls) => `urls = [\n${urls}\n]`,
@@ -63,7 +64,7 @@ const configs: ScriptConfig[] = [
   },
   {
     name: 'TypeScript',
-    templatePath: './code/typescript.ts',
+    templatePath: `${import.meta.dir}/code/typescript.ts`,
     outputPath: 'gip.ts',
     placeholder: /const urls: string\[\] = \[\];/,
     replacement: (urls) => `const urls: string[] = [\n${urls}\n];`,
@@ -72,7 +73,7 @@ const configs: ScriptConfig[] = [
   },
   {
     name: 'Go',
-    templatePath: './code/go.go',
+    templatePath: `${import.meta.dir}/code/go.go`,
     outputPath: 'gip.go',
     placeholder: /var urls = \[\]string\{\}/,
     replacement: (urls) => `var urls = []string{\n${urls}\n}`,
@@ -81,7 +82,7 @@ const configs: ScriptConfig[] = [
   },
   {
     name: 'Java',
-    templatePath: './code/java.java',
+    templatePath: `${import.meta.dir}/code/java.java`,
     outputPath: 'gip.java',
     placeholder: /private static final String\[\] urls = \{\};/,
     replacement: (urls) => `private static final String[] urls = {\n${urls}\n};`,
@@ -90,7 +91,7 @@ const configs: ScriptConfig[] = [
   },
   {
     name: 'C#',
-    templatePath: './code/csharp.cs',
+    templatePath: `${import.meta.dir}/code/csharp.cs`,
     outputPath: 'gip.cs',
     placeholder: /string\[\] urls = \{\};/,
     replacement: (urls) => `string[] urls = {\n${urls}\n};`,
