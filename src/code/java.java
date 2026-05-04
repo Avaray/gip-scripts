@@ -3,10 +3,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class IpChecker {
 
@@ -15,27 +16,44 @@ class IpChecker {
 
     public static void main(String[] args) {
         int consensusThreshold = parseArguments(args);
-        Map<String, Integer> ipCounts = new HashMap<>();
+        Map<String, Integer> ipCounts = new ConcurrentHashMap<>();
+        AtomicBoolean found = new AtomicBoolean(false);
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         for (String url : urls) {
             futures.add(CompletableFuture.supplyAsync(() -> checkIp(url))
                     .thenAccept(ip -> {
-                        if (ip != null) {
-                            ipCounts.put(ip, ipCounts.getOrDefault(ip, 0) + 1);
+                        if (ip != null && !found.get()) {
+                            ipCounts.merge(ip, 1, Integer::sum);
                             if (ipCounts.get(ip) >= consensusThreshold) {
-                                System.out.println(ip);
-                                System.exit(0);
+                                if (found.compareAndSet(false, true)) {
+                                    System.out.println(ip);
+                                    System.exit(0);
+                                }
                             }
                         }
                     }));
         }
 
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allOf.join(); // Wait for all futures to complete
+        allOf.join();
 
-        System.err.println("Could not determine external IPv4 address");
+        // Find the best IP for error message
+        String bestIp = null;
+        int bestCount = 0;
+        for (Map.Entry<String, Integer> entry : ipCounts.entrySet()) {
+            if (entry.getValue() > bestCount) {
+                bestCount = entry.getValue();
+                bestIp = entry.getKey();
+            }
+        }
+
+        if (bestIp != null) {
+            System.err.printf("Not enough IP addresses found to meet ensure count of %d. Found: %s (%d)%n", consensusThreshold, bestIp, bestCount);
+        } else {
+            System.err.printf("Not enough IP addresses found to meet ensure count of %d. No valid IP found.%n", consensusThreshold);
+        }
         System.exit(1);
     }
 
@@ -58,7 +76,7 @@ class IpChecker {
 
     private static String checkIp(String urlString) {
         try {
-            URI uri = new URI(urlString); // Use URI instead of URL constructor
+            URI uri = new URI(urlString);
             HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);

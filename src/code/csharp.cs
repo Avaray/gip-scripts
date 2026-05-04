@@ -59,5 +59,24 @@ using (var client = new HttpClient())
     }
 }
 
-Console.Error.WriteLine("Could not determine external IPv4 address");
+// Find the best IP for error message
+string bestIp = null;
+int bestCount = 0;
+foreach (var kv in ipCounts)
+{
+    if (kv.Value > bestCount)
+    {
+        bestCount = kv.Value;
+        bestIp = kv.Key;
+    }
+}
+
+if (bestIp != null)
+{
+    Console.Error.WriteLine($"Not enough IP addresses found to meet ensure count of {consensusThreshold}. Found: {bestIp} ({bestCount})");
+}
+else
+{
+    Console.Error.WriteLine($"Not enough IP addresses found to meet ensure count of {consensusThreshold}. No valid IP found.");
+}
 Environment.Exit(1);

@@ -28,7 +28,8 @@ async function checkIp(url: string): Promise<string | null> {
     if (!response.ok) return null;
     const ip = (await response.text()).trim();
     return validateIp(ip) ? ip : null;
-  } catch (error) {
+  } catch {
+    clearTimeout(timeoutId);
     return null;
   }
 }
@@ -57,6 +58,12 @@ const checkPromises = urls.map(async (url) => {
 await Promise.all(checkPromises);
 
 if (!completed) {
-  console.error('Could not determine external IPv4 address');
+  const entries = Object.entries(ipCounts).sort((a, b) => b[1] - a[1]);
+  if (entries.length > 0) {
+    const [bestIp, bestCount] = entries[0];
+    console.error(`Not enough IP addresses found to meet ensure count of ${consensusThreshold}. Found: ${bestIp} (${bestCount})`);
+  } else {
+    console.error(`Not enough IP addresses found to meet ensure count of ${consensusThreshold}. No valid IP found.`);
+  }
   process.exit(1);
 }

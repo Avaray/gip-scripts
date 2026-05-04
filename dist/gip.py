@@ -76,7 +76,7 @@ def main():
 
     ip_counts = {}
 
-    with ThreadPoolExecutor(max_workers=len(urls)) as executor:
+    with ThreadPoolExecutor(max_workers=max(len(urls), 1)) as executor:
         future_to_url = {executor.submit(check_ip, url): url for url in urls}
         for future in as_completed(future_to_url):
             ip = future.result()
@@ -85,8 +85,12 @@ def main():
                 if ip_counts[ip] >= consensus_threshold:
                     print(ip)
                     return 0
-    
-    print("Could not determine external IPv4 address", file=sys.stderr)
+
+    if ip_counts:
+        best_ip = max(ip_counts, key=ip_counts.get)
+        print(f"Not enough IP addresses found to meet ensure count of {consensus_threshold}. Found: {best_ip} ({ip_counts[best_ip]})", file=sys.stderr)
+    else:
+        print(f"Not enough IP addresses found to meet ensure count of {consensus_threshold}. No valid IP found.", file=sys.stderr)
     return 1
 
 if __name__ == "__main__":

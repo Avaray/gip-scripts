@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -17,7 +18,7 @@ var urls = []string{}
 var ipRegex = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
 
 func validateIP(ip string) bool {
-	return ipRegex.MatchString(ip)
+	return ipRegex.MatchString(strings.TrimSpace(ip))
 }
 
 func checkIP(ctx context.Context, url string) (string, error) {
@@ -38,7 +39,7 @@ func checkIP(ctx context.Context, url string) (string, error) {
 		return "", err
 	}
 
-	ip := string(body)
+	ip := strings.TrimSpace(string(body))
 	if validateIP(ip) {
 		return ip, nil
 	}
@@ -83,6 +84,19 @@ func main() {
 		}
 	}
 
-	fmt.Fprintln(os.Stderr, "Could not determine external IPv4 address")
+	bestIP := ""
+	bestCount := 0
+	for ip, count := range ipCounts {
+		if count > bestCount {
+			bestCount = count
+			bestIP = ip
+		}
+	}
+
+	if bestIP != "" {
+		fmt.Fprintf(os.Stderr, "Not enough IP addresses found to meet ensure count of %d. Found: %s (%d)\n", *consensusThreshold, bestIP, bestCount)
+	} else {
+		fmt.Fprintf(os.Stderr, "Not enough IP addresses found to meet ensure count of %d. No valid IP found.\n", *consensusThreshold)
+	}
 	os.Exit(1)
 }

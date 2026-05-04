@@ -51,39 +51,42 @@ check_ip() {
     fi
 }
 
-# Array to store results
+# Associative array to store IP counts
 declare -A results
 
 # Create a named pipe for inter-process communication
 pipe=$(mktemp -u)
 mkfifo "$pipe"
 
-# Function to check for consensus
-check_consensus() {
-    while read -r ip; do
-        ((results[$ip]++))
-        if [ "${results[$ip]}" -ge "$consensus_threshold" ]; then
-            echo "$ip"
-            return 0
-        fi
-    done
-    return 1
-}
-
 # Trap to ensure cleanup on exit
 trap 'rm -f "$pipe"; kill $(jobs -p) 2>/dev/null' EXIT
 
 # Start the requests in the background
 for url in "${urls[@]}"; do
-    check_ip "$url" > "$pipe" &
+    check_ip "$url" >> "$pipe" &
 done
 
-# Check for consensus
-if ip=$(check_consensus < "$pipe"); then
-    echo "$ip"
-    exit 0
-fi
+# Track best result for error message
+best_ip=""
+best_count=0
 
-# If we get here, no consensus was reached
-echo "Could not determine external IPv4 address" >&2
+# Read results and check for consensus
+while read -r ip; do
+    ((results[$ip]++))
+    if (( results[$ip] > best_count )); then
+        best_ip="$ip"
+        best_count=${results[$ip]}
+    fi
+    if (( results[$ip] >= consensus_threshold )); then
+        echo "$ip"
+        exit 0
+    fi
+done < "$pipe"
+
+# No consensus reached - print informative error
+if [[ -n "$best_ip" ]]; then
+    echo "Not enough IP addresses found to meet ensure count of ${consensus_threshold}. Found: ${best_ip} (${best_count})" >&2
+else
+    echo "Not enough IP addresses found to meet ensure count of ${consensus_threshold}. No valid IP found." >&2
+fi
 exit 1
