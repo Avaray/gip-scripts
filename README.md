@@ -63,3 +63,12 @@ java gip.java --ensure 7
 dotnet script gip.cs
 dotnet script gip.cs -- --ensure 7
 ```
+
+### [PowerShell](https://microsoft.com/powershell/)
+
+> Requires PowerShell 7+. Install it from [microsoft.com/powershell](https://microsoft.com/powershell/).
+
+```powershell
+pwsh gip.ps1
+pwsh gip.ps1 -Ensure 7
+```

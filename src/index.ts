@@ -98,6 +98,15 @@ const configs: ScriptConfig[] = [
     quote: '"',
     comma: true,
   },
+  {
+    name: 'PowerShell',
+    templatePath: `${import.meta.dir}/code/powershell.ps1`,
+    outputPath: 'gip.ps1',
+    placeholder: /\$urls = @\(\)/,
+    replacement: (urls) => `$urls = @(\n${urls}\n)`,
+    quote: '"',
+    comma: true,
+  },
 ];
 
 // Run generation for all configured languages
