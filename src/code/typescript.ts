@@ -1,6 +1,6 @@
 import process from 'node:process';
 
-const urls = [];
+const urls: string[] = [];
 
 function parseArguments(): number {
   const args = process.argv.slice(2);

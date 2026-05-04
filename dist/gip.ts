@@ -1,6 +1,6 @@
 import process from 'node:process';
 
-const urls = [
+const urls: string[] = [
   'http://eth0.me',
   'http://ipv4.whatismyip.akamai.com',
   'https://2ip.io/',
