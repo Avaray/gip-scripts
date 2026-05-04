@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,15 +21,15 @@ class IpChecker {
 
         for (String url : urls) {
             futures.add(CompletableFuture.supplyAsync(() -> checkIp(url))
-              .thenAccept(ip -> {
-                  if (ip != null) {
-                      ipCounts.put(ip, ipCounts.getOrDefault(ip, 0) + 1);
-                      if (ipCounts.get(ip) >= consensusThreshold) {
-                          System.out.println(ip);
-                          System.exit(0);
-                      }
-                  }
-              }));
+                    .thenAccept(ip -> {
+                        if (ip != null) {
+                            ipCounts.put(ip, ipCounts.getOrDefault(ip, 0) + 1);
+                            if (ipCounts.get(ip) >= consensusThreshold) {
+                                System.out.println(ip);
+                                System.exit(0);
+                            }
+                        }
+                    }));
         }
 
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -64,8 +63,9 @@ class IpChecker {
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(5000);
             connection.setReadTimeout(5000);
-            
-            if (connection.getResponseCode() != 200) return null;
+
+            if (connection.getResponseCode() != 200)
+                return null;
 
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuilder response = new StringBuilder();
