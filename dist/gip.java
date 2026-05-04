@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class IpChecker {
+class IpChecker {
 
     private static final String[] urls = {
   "http://eth0.me",
