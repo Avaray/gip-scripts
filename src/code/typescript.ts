@@ -35,18 +35,28 @@ async function checkIp(url: string): Promise<string | null> {
 
 const consensusThreshold = parseArguments();
 const ipCounts: { [key: string]: number } = {};
+let completed = false;
 
-const promises = urls.map((url) => checkIp(url));
+if (urls.length === 0) {
+  console.error('No URLs provided');
+  process.exit(1);
+}
 
-for await (const ip of promises) {
-  if (ip) {
+const checkPromises = urls.map(async (url) => {
+  const ip = await checkIp(url);
+  if (ip && !completed) {
     ipCounts[ip] = (ipCounts[ip] || 0) + 1;
     if (ipCounts[ip] >= consensusThreshold) {
+      completed = true;
       console.log(ip);
       process.exit(0);
     }
   }
-}
+});
 
-console.error('Could not determine external IPv4 address');
-process.exit(1);
+await Promise.all(checkPromises);
+
+if (!completed) {
+  console.error('Could not determine external IPv4 address');
+  process.exit(1);
+}

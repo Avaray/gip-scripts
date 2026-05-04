@@ -1,34 +1,50 @@
 import process from 'node:process';
 
 const urls = [
-'http://eth0.me',
-'http://ipv4.whatismyip.akamai.com',
-'https://api-ipv4.ip.sb/ip',
-'https://api.ipify.org',
-'https://api.myip.la',
-'https://checkip.amazonaws.com',
-'https://icanhazip.com',
-'https://ifconfig.co',
-'https://ifconfig.io',
-'https://ifconfig.me/ip',
-'https://ip.gs',
-'https://ip.sb',
-'https://ip.tyk.nu',
-'https://ip.xdty.org',
-'https://ipapi.co/ip',
-'https://ipconfig.io',
-'https://ipecho.net/plain',
-'https://ipinfo.io/ip',
-'https://ipv4.appspot.com',
-'https://ipv4.icanhazip.com',
-'https://ipv4.wtfismyip.com/text',
-'https://l2.io/ip',
-'https://myexternalip.com/raw',
-'https://myip.dnsomatic.com',
-'https://myip.ustclug.org',
-'https://v4.ident.me',
-'https://wgetip.com',
-'https://www.uc.cn/ip',
+  'http://eth0.me',
+  'http://ipv4.whatismyip.akamai.com',
+  'https://2ip.io/',
+  'https://4.ident.me/',
+  'https://4.tnedi.me/',
+  'https://api-ipv4.ip.sb/ip',
+  'https://api.ipify.org',
+  'https://api.myip.la',
+  'https://api.seeip.org',
+  'https://api4.ipify.org/',
+  'https://checkip.amazonaws.com',
+  'https://icanhazip.com',
+  'https://ifconfig.co',
+  'https://ifconfig.io',
+  'https://ifconfig.me/ip',
+  'https://ip.broomfieldnetworks.com/',
+  'https://ip.gs',
+  'https://ip.me/',
+  'https://ip.netray.info/',
+  'https://ip.sb',
+  'https://ip.tyk.nu',
+  'https://ip.xdty.org',
+  'https://ipaddress.ai/ip',
+  'https://ipapi.co/ip',
+  'https://ipconfig.io',
+  'https://ipecho.io/plain',
+  'https://ipecho.net/plain',
+  'https://ipinfo.io/ip',
+  'https://ipv4.appspot.com',
+  'https://ipv4.icanhazip.com',
+  'https://ipv4.seeip.org/',
+  'https://ipv4.wtfismyip.com/text',
+  'https://l2.io/ip',
+  'https://myexternalip.com/raw',
+  'https://myip.dnsomatic.com',
+  'https://myip.ustclug.org',
+  'https://showip.azurewebsites.net/api/http',
+  'https://simpip.com/',
+  'https://v4.ident.me',
+  'https://wgetip.com',
+  'https://whatismyip.akamai.com/',
+  'https://wtfismyip.com/text',
+  'https://www.trackip.net/ip',
+  'https://www.uc.cn/ip',
 ];
 
 function parseArguments(): number {
@@ -64,18 +80,28 @@ async function checkIp(url: string): Promise<string | null> {
 
 const consensusThreshold = parseArguments();
 const ipCounts: { [key: string]: number } = {};
+let completed = false;
 
-const promises = urls.map((url) => checkIp(url));
+if (urls.length === 0) {
+  console.error('No URLs provided');
+  process.exit(1);
+}
 
-for await (const ip of promises) {
-  if (ip) {
+const checkPromises = urls.map(async (url) => {
+  const ip = await checkIp(url);
+  if (ip && !completed) {
     ipCounts[ip] = (ipCounts[ip] || 0) + 1;
     if (ipCounts[ip] >= consensusThreshold) {
+      completed = true;
       console.log(ip);
       process.exit(0);
     }
   }
-}
+});
 
-console.error('Could not determine external IPv4 address');
-process.exit(1);
+await Promise.all(checkPromises);
+
+if (!completed) {
+  console.error('Could not determine external IPv4 address');
+  process.exit(1);
+}
