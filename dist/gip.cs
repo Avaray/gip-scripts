@@ -54,46 +54,52 @@ string[] urls = {
 };
 
 int consensusThreshold = 3;
-if (args.Length > 0 && args[0] == "--ensure" && args.Length > 1)
+
+// dotnet-script provides the 'Args' collection
+if (Args.Count > 0 && Args[0] == "--ensure" && Args.Count > 1)
 {
-    if (int.TryParse(args[1], out int threshold))
+    if (int.TryParse(Args[1], out int threshold))
     {
         consensusThreshold = threshold;
     }
 }
 
 var ipCounts = new Dictionary<string, int>();
-using var client = new HttpClient();
-client.Timeout = TimeSpan.FromSeconds(5);
-var ipRegex = new Regex(@"^(\d{1,3}\.){3}\d{1,3}$", RegexOptions.Compiled);
-
-var tasks = urls.Select(async url =>
+using (var client = new HttpClient())
 {
-    try
-    {
-        string response = await client.GetStringAsync(url);
-        string ip = response.Trim();
-        return ipRegex.IsMatch(ip) ? ip : null;
-    }
-    catch
-    {
-        return null;
-    }
-}).ToList();
+    client.Timeout = TimeSpan.FromSeconds(5);
+    var ipRegex = new Regex(@"^(\d{1,3}\.){3}\d{1,3}$", RegexOptions.Compiled);
 
-while (tasks.Any())
-{
-    var completedTask = await Task.WhenAny(tasks);
-    tasks.Remove(completedTask);
-
-    if (await completedTask is string ip)
+    var tasks = urls.Select(async url =>
     {
-        ipCounts[ip] = ipCounts.GetValueOrDefault(ip, 0) + 1;
-
-        if (ipCounts[ip] >= consensusThreshold)
+        try
         {
-            Console.WriteLine(ip);
-            return;
+            string response = await client.GetStringAsync(url);
+            string ip = response.Trim();
+            return ipRegex.IsMatch(ip) ? ip : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }).ToList();
+
+    while (tasks.Any())
+    {
+        var completedTask = await Task.WhenAny(tasks);
+        tasks.Remove(completedTask);
+
+        var ip = await completedTask;
+        if (ip != null)
+        {
+            if (!ipCounts.ContainsKey(ip)) ipCounts[ip] = 0;
+            ipCounts[ip]++;
+
+            if (ipCounts[ip] >= consensusThreshold)
+            {
+                Console.WriteLine(ip);
+                return;
+            }
         }
     }
 }
